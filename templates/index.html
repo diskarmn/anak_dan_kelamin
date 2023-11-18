@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tambahkan link ke Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <title>daftar anak dan jenis kelamin</title>
+    <style>
+        .biru{
+            background-color: rgb(204, 216, 255);
+        }
+        .pink{
+            background-color: rgba(255, 205, 224, 0.979);
+        }
+    </style>
+</head>
+
+
+<body class="d-flex justify-content-center align-items-center text-white bg-dark">
+    <div class="w-70">
+        <form class="mt-3">
+            <h1 class="title">nama dan kelamin</h1>
+            <div class="mb-3">
+                <label for="depan" class="form-label">nama depan</label>
+                <input type="text" class="form-control" id="depan" aria-describedby="namadepan" required>
+                <div id="namadepan" class="form-text">masukkan nama depan</div>
+            </div>
+            <div class="mb-3">
+                <label for="belakang" class="form-label">nama belakang</label>
+                <input type="text" class="form-control" id="belakang" aria-describedby="namabelakang" required>
+                <div id="namabelakang" class="form-text">masukkan nama belakang</div>
+            </div>
+            <div class="mb-3">
+                <label for="kelamin">kelamin</label>
+                <select id="kelamin" class="form-select" aria-label="Default select example" required>
+                    <option selected>kelamin</option>
+                    <option value="laki-laki">laki-laki</option>
+                    <option value="perempuan">perempuan</option>
+                </select>
+            </div>
+
+            <button type="submit" onclick="tambah()" class="btn btn-primary">tambah</button>
+        </form>
+        <ul class="list-group mt-4" id="daftar_isi">
+            <li class="list-group-item active" aria-current="true">daftar anak</li>
+            
+        </ul>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "/tampil",
+                success: function (response) {
+                    var isi = response['semua'];
+                    for (let i = 0; i < isi.length; i++) {
+                        let depan = isi[i]['nama_depan'];
+                        let belakang = isi[i]['nama_belakang'];
+                        let kelamin = isi[i]['jenis_kelamin'];
+                        let nomor = isi[i]['nomor'];
+                        let data='';
+                        if(kelamin ==='laki-laki'){
+                        let data = `<li class="list-group-item biru d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">${depan} ${belakang}</div>${kelamin}</div>
+                            <button type="submit" onclick="hapus(${nomor})" class="btn btn-danger">hapus</button></li>`;
+                        $("#daftar_isi").append(data);
+                        }else{
+                            let data = `<li class="list-group-item pink d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">${depan} ${belakang}</div>${kelamin}</div>
+                            <button type="submit" onclick="hapus(${nomor})" class="btn btn-danger">hapus</button></li>`;
+                        $("#daftar_isi").append(data);
+                        }
+
+                    }
+                }
+            })
+        })
+        function tambah() {
+            var depan = $("#depan").val();
+            var belakang = $("#belakang").val();
+            var kelamin = $("#kelamin").val();
+            $.ajax({
+                type: 'POST',
+                url: '/tambah',
+                data: {
+                    kunci_depan: depan,
+                    kunci_belakang: belakang,
+                    kunci_kelamin: kelamin
+                },
+                success: function (response) {
+                    console.log(response);
+                    alert(response['pesan']);
+                    window.location.reload();
+                }
+            })
+        }
+        function hapus(nomor){
+            $.ajax({
+                type:'POST',
+                url:'/hapus',
+                data:{kunci_nomor:nomor},
+                success:function(response){
+                    alert(response['pesan']);
+                    window.location.reload();
+                }
+            })
+        }
+
+    </script>
+
+</body>
+
+</html>
